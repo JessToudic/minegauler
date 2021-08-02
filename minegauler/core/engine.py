@@ -57,7 +57,7 @@ def _save_minefield(mf: Minefield, file: PathLike) -> None:
 class _SharedInfo:
     """
     Information to pass to frontends.
-    
+
     Elements:
     cell_updates
         Dictionary of updates to cells, mapping the coordinate to the new
@@ -162,6 +162,9 @@ class BaseController(api.AbstractController):
             self.switch_mode(UIMode.GAME)
             self._notif.ui_mode_changed(UIMode.GAME)
         self._active_ctrlr.load_minefield(file)
+
+    def get_probabilities(self) -> Grid:
+        return self._active_ctrlr.get_probabilities()
 
 
 class _GameController(_AbstractSubController):
@@ -396,6 +399,19 @@ class _GameController(_AbstractSubController):
         self._game = game.Game(minefield=mf, lives=self._opts.lives)
         self._send_resize_update()
 
+    def get_probabilities(self) -> Grid:
+        """
+        Get the current game's probability grid.
+
+        :return:
+            The probability grid, with the same dimensions as the current board,
+            and each cell being a number between 0 and 1 representing the
+            probability that the cell contains at least 1 mine.
+        """
+        return self.board.calculate_probs(
+            self._opts.mines, per_cell=self._opts.per_cell
+        )
+
     # --------------------------------------------------------------------------
     # Helper methods
     # --------------------------------------------------------------------------
@@ -571,4 +587,7 @@ class _CreateController(_AbstractSubController):
         _save_minefield(mf, file)
 
     def load_minefield(self, file: PathLike) -> None:
+        return NotImplemented
+
+    def get_probabilities(self) -> Grid:
         return NotImplemented

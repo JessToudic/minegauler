@@ -409,10 +409,10 @@ class MinegaulerGUI(
         # - Probabilities (F5)
         # - Auto flag (Ctrl+F)
         # - Auto click (Ctrl+Enter)
-        # TODO: Add a menubar button that triggers calculation of probabilities,
-        #       something like:
-        # game_opts = self._ctrlr.get_game_options()
-        # self._ctrlr.board.calculate_probs(game_opts.mines, game_opts.per_cell)
+        probs_act = self._game_menu.addAction(
+            "Probabilities", self.display_probabilities
+        )
+        probs_act.setShortcut("F5")
 
         # Highscores (F6)
         highscores_act = self._game_menu.addAction(
@@ -802,6 +802,11 @@ class MinegaulerGUI(
 
     def get_gui_opts(self) -> GUIOptsStruct:
         return GUIOptsStruct.from_structs(self._state, self._state.pending_game_state)
+
+    def display_probabilities(self) -> None:
+        probs = self._ctrlr.get_probabilities()
+        # TODO: Display in the minefield widget.
+        print(probs)
 
     def open_highscores_window(
         self,

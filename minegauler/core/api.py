@@ -26,7 +26,7 @@ from ..shared.types import (
     PathLike,
     UIMode,
 )
-from ..shared.utils import GameOptsStruct
+from ..shared.utils import GameOptsStruct, Grid
 
 
 @attr.attrs(auto_attribs=True, kw_only=True)
@@ -433,6 +433,18 @@ class AbstractController(metaclass=abc.ABCMeta):
             ".mgb".
         """
         self._logger.debug("Loading minefield from file: %s", file)
+
+    @abc.abstractmethod
+    def get_probabilities(self) -> Grid:
+        """
+        Get the current game's probability grid.
+
+        :return:
+            The probability grid, with the same dimensions as the current board,
+            and each cell being a number between 0 and 1 representing the
+            probability that the cell contains at least 1 mine.
+        """
+        self._logger.debug("Getting board probabilities")
 
     @abc.abstractmethod
     def switch_mode(self, mode: UIMode) -> None:
