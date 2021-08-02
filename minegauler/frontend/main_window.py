@@ -409,6 +409,10 @@ class MinegaulerGUI(
         # - Probabilities (F5)
         # - Auto flag (Ctrl+F)
         # - Auto click (Ctrl+Enter)
+        # TODO: Add a menubar button that triggers calculation of probabilities,
+        #       something like:
+        # game_opts = self._ctrlr.get_game_options()
+        # self._ctrlr.board.calculate_probs(game_opts.mines, game_opts.per_cell)
 
         # Highscores (F6)
         highscores_act = self._game_menu.addAction(

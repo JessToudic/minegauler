@@ -18,6 +18,8 @@ __all__ = ("Board", "Minefield")
 import random as rnd
 from typing import Any, Collection, Dict, Iterable, List, Optional, Union
 
+import zig_minesolver
+
 from ..shared import utils
 from ..shared.types import CellContents, Coord_T
 
@@ -88,6 +90,12 @@ class Board(utils.Grid):
         """Reset the board to the initial state."""
         for c in self.all_coords:
             self[c] = CellContents.Unclicked
+
+    def calculate_probs(self, mines: int, *, per_cell: int = 1) -> utils.Grid:
+        # TODO: This should return a grid of probabilities.
+        probs = zig_minesolver.get_board_probs(str(self), mines, per_cell=per_cell)
+        for row in probs:
+            print(" ".join(f"{p:.2f}" for p in row))
 
 
 class Minefield(utils.Grid):
