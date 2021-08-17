@@ -92,10 +92,18 @@ class Board(utils.Grid):
             self[c] = CellContents.Unclicked
 
     def calculate_probs(self, mines: int, *, per_cell: int = 1) -> utils.Grid:
-        # TODO: This should return a grid of probabilities.
-        probs = zig_minesolver.get_board_probs(str(self), mines, per_cell=per_cell)
-        for row in probs:
-            print(" ".join(f"{p:.2f}" for p in row))
+        """Calculate mine probabilities for the board."""
+        board: utils.Grid = self.copy()
+        for coord in board.all_coords:
+            if isinstance(board[coord], CellContents.Flag):
+                board[coord] = CellContents.Unclicked
+            elif isinstance(board[coord], CellContents.Mine):
+                board[coord] = f"*{board[coord].num}"
+
+        probs = zig_minesolver.get_board_probs(
+            str(board), mines=mines, per_cell=per_cell
+        )
+        return utils.Grid.from_2d_array(probs)
 
 
 class Minefield(utils.Grid):

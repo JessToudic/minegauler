@@ -282,6 +282,8 @@ class _GameController(_AbstractSubController):
                 self._game.set_cell_flags(coord, 0)
             else:
                 self._game.set_cell_flags(coord, cell_state.num + 1)
+        else:
+            return
 
         self._send_updates({coord: self._game.board[coord]})
 

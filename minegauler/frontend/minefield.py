@@ -18,13 +18,13 @@ import time
 from typing import Callable, Dict, Iterable, List, Mapping, Optional, Set
 
 from PyQt5.QtCore import QSize, Qt, pyqtSignal
-from PyQt5.QtGui import QImage, QMouseEvent, QPainter, QPixmap
+from PyQt5.QtGui import QBrush, QColor, QImage, QMouseEvent, QPainter, QPen, QPixmap
 from PyQt5.QtWidgets import QGraphicsScene, QGraphicsView, QSizePolicy, QWidget
 
 from ..core import Board, api
 from ..shared.types import CellContents, CellImageType, Coord_T
 from .state import State
-from .utils import IMG_DIR, CellUpdate_T, MouseMove
+from .utils import IMG_DIR, CellUpdate_T, MouseMove, blend_colours
 
 
 logger = logging.getLogger(__name__)
@@ -88,9 +88,9 @@ def _make_pixmap(
     fg_fname: Optional[str] = None,
     propn: float = 1.0,
 ) -> QPixmap:
-    def get_path(subdir, fname, style) -> str:
+    def get_path(subdir, fname, styl) -> str:
         base_path = IMG_DIR / subdir
-        full_path = base_path / style / fname
+        full_path = base_path / styl / fname
         if not full_path.exists():
             logger.warning(f"Missing image file at {full_path}, using standard style")
             full_path = base_path / "standard" / fname
@@ -177,6 +177,9 @@ class MinefieldWidget(QGraphicsView):
 
         # Set of coords for cells which are sunken.
         self._sunken_cells: Set = set()
+
+        # Coloured squares for probabilities.
+        self._colour_squares = []
 
         # Mouse tracking info, for simulating a played game.
         self._mouse_tracking: List[MouseMove] = []
@@ -523,6 +526,8 @@ class MinefieldWidget(QGraphicsView):
         self._scene.clear()
         for c in self._board.all_coords:
             self._set_cell_image(c, CellContents.Unclicked)
+        self._sunken_cells.clear()
+        self._colour_squares.clear()
         self._mouse_coord = None
         self._both_mouse_buttons_pressed = False
         self._await_release_all_buttons = True
@@ -537,6 +542,7 @@ class MinefieldWidget(QGraphicsView):
         :param cell_updates:
             A mapping of cell coordinates to their new state.
         """
+        self._remove_cell_colours()
         self._mouse_events.append((self._elapsed, cell_updates))
         for c, state in cell_updates.items():
             self._set_cell_image(c, state)
@@ -566,3 +572,34 @@ class MinefieldWidget(QGraphicsView):
 
     def get_mouse_events(self) -> List[CellUpdate_T]:
         return self._mouse_events
+
+    def _set_cell_colour(self, coord: Coord_T, prob: float) -> None:
+        """Set the colour of an unclicked cell based on probability."""
+        x, y = coord
+        x = int((x + 1 / 16) * self.btn_size)
+        y = int((y + 1 / 16) * self.btn_size)
+        w = h = int(self.btn_size * 7 / 8)
+
+        mid_density = 0.2
+        if prob >= mid_density:
+            ratio = (prob - mid_density) / (1 - mid_density)
+            colour = blend_colours(ratio)
+        else:
+            ratio = (mid_density - prob) / mid_density
+            colour = blend_colours(ratio, high=(0, 255, 0))
+
+        pen = QPen(Qt.NoPen)
+        brush = QBrush(QColor(*colour))
+        self._colour_squares.append(self._scene.addRect(x, y, w, h, pen, brush))
+
+    def _remove_cell_colours(self) -> None:
+        """Remove colouring from unclicked cells."""
+        for sq in self._colour_squares:
+            self._scene.removeItem(sq)
+        self._colour_squares.clear()
+
+    def display_probs(self) -> None:
+        probs = self._ctrlr.get_probabilities()
+        for coord in self._board.all_coords:
+            if self._board[coord] is CellContents.Unclicked:
+                self._set_cell_colour(coord, probs[coord])

@@ -410,7 +410,7 @@ class MinegaulerGUI(
         # - Auto flag (Ctrl+F)
         # - Auto click (Ctrl+Enter)
         probs_act = self._game_menu.addAction(
-            "Probabilities", self.display_probabilities
+            "Probabilities", lambda: self._mf_widget.display_probs()
         )
         probs_act.setShortcut("F5")
 
@@ -802,11 +802,6 @@ class MinegaulerGUI(
 
     def get_gui_opts(self) -> GUIOptsStruct:
         return GUIOptsStruct.from_structs(self._state, self._state.pending_game_state)
-
-    def display_probabilities(self) -> None:
-        probs = self._ctrlr.get_probabilities()
-        # TODO: Display in the minefield widget.
-        print(probs)
 
     def open_highscores_window(
         self,

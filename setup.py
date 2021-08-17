@@ -90,6 +90,7 @@ setuptools.setup(
         "mysql-connector-python==8.*",
         "PyQt5==5.11.*",
         "requests==2.*",
+        "zig_minesolver==0.1.1",
     ],
     package_data={
         "minegauler": [
