@@ -200,6 +200,7 @@ class _CellWrongFlag(_CellFlag):
 # Make the base class act like an ADT, serving as the only external API.
 CellContents.Unclicked = _CellUnclicked()
 CellContents.Num = _CellNum
+CellContents.MineBase = _CellMineType
 CellContents.Mine = _CellMine
 CellContents.HitMine = _CellHitMine
 CellContents.Flag = _CellFlag

@@ -15,13 +15,18 @@ Exports
 
 __all__ = ("Board", "Minefield")
 
+import logging
 import random as rnd
+import subprocess
 from typing import Any, Collection, Dict, Iterable, List, Optional, Union
 
 import zig_minesolver
 
 from ..shared import utils
 from ..shared.types import CellContents, Coord_T
+
+
+logger = logging.getLogger(__name__)
 
 
 class Board(utils.Grid):
@@ -93,16 +98,23 @@ class Board(utils.Grid):
 
     def calculate_probs(self, mines: int, *, per_cell: int = 1) -> utils.Grid:
         """Calculate mine probabilities for the board."""
-        board: utils.Grid = self.copy()
-        for coord in board.all_coords:
-            if isinstance(board[coord], CellContents.Flag):
-                board[coord] = CellContents.Unclicked
-            elif isinstance(board[coord], CellContents.Mine):
-                board[coord] = f"*{board[coord].num}"
 
-        probs = zig_minesolver.get_board_probs(
-            str(board), mines=mines, per_cell=per_cell
-        )
+        def cell_repr(cell: CellContents) -> str:
+            if isinstance(cell, CellContents.MineBase):
+                return CellContents.Unclicked
+            else:
+                return cell
+
+        print(super().__str__(mapping=cell_repr))
+
+        try:
+            probs = zig_minesolver.get_board_probs(
+                super().__str__(mapping=cell_repr), mines=mines, per_cell=per_cell
+            )
+        except subprocess.CalledProcessError as e:
+            logger.debug("Output from zig_minesolver:\n%s%s", e.stderr, e.stdout)
+            raise RuntimeError("Unable to calculate probabilities") from e
+
         return utils.Grid.from_2d_array(probs)
 
 

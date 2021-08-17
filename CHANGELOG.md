@@ -24,6 +24,15 @@ The latest release for version 4.0 includes:
  - Ability to fetch local highscores from another app installation
 
 
+### 4.0.6-a1 (2021-08-17)
+ - Add initial implementation of probabilities
+TODO:
+ - Ensure highscores cannot be obtained when using probabilities
+ - Clear probabilities when pressing F5 again
+ - Display probabilities with create board mode
+ - Fix probabilities on large boards
+
+
 ### 4.0.5 (2020-07-02)
  - Fix crash when clicking multiple mouse buttons off the board
 

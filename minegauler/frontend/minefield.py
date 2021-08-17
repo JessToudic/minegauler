@@ -599,7 +599,11 @@ class MinefieldWidget(QGraphicsView):
         self._colour_squares.clear()
 
     def display_probs(self) -> None:
-        probs = self._ctrlr.get_probabilities()
+        try:
+            probs = self._ctrlr.get_probabilities()
+        except Exception:
+            logger.error("Failed to calculate probabilities")
+            return
         for coord in self._board.all_coords:
             if self._board[coord] is CellContents.Unclicked:
                 self._set_cell_colour(coord, probs[coord])
