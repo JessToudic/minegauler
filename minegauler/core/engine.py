@@ -592,4 +592,14 @@ class _CreateController(_AbstractSubController):
         return NotImplemented
 
     def get_probabilities(self) -> Grid:
-        return NotImplemented
+        """
+        Get the current game's probability grid.
+
+        :return:
+            The probability grid, with the same dimensions as the current board,
+            and each cell being a number between 0 and 1 representing the
+            probability that the cell contains at least 1 mine.
+        """
+        return self.board.calculate_probs(
+            self._opts.mines, per_cell=self._opts.per_cell
+        )

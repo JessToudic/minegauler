@@ -105,8 +105,6 @@ class Board(utils.Grid):
             else:
                 return cell
 
-        print(super().__str__(mapping=cell_repr))
-
         try:
             probs = zig_minesolver.get_board_probs(
                 super().__str__(mapping=cell_repr), mines=mines, per_cell=per_cell
