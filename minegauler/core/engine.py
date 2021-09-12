@@ -174,7 +174,10 @@ class _GameController(_AbstractSubController):
     """
 
     def __init__(
-        self, opts: GameOptsStruct, *, notif: api.AbstractListener,
+        self,
+        opts: GameOptsStruct,
+        *,
+        notif: api.AbstractListener,
     ):
         """
         :param opts:
